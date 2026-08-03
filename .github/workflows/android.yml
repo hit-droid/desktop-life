@@ -1,0 +1,43 @@
+name: Build Desktop Life APK
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Download Cubism SDK
+        run: |
+          mkdir -p /tmp/cubism_sdk
+          echo "Cubism SDK would need to be downloaded here"
+          echo "For now, the native libs are already in the project tree"
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew assembleRelease
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-life-apk
+          path: app/build/outputs/apk/release/app-release.apk
+          retention-days: 30
