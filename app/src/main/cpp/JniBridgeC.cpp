@@ -8,6 +8,8 @@
 #include <jni.h>
 #include "JniBridgeC.hpp"
 #include "LAppMinimumDelegate.hpp"
+#include "LAppMinimumLive2DManager.hpp"
+#include "LAppMinimumModel.hpp"
 #include "LAppPal.hpp"
 
 using namespace Csm;
@@ -75,6 +77,53 @@ void JniBridgeC::MoveTaskToBack()
 
 extern "C"
 {
+    JNIEXPORT void JNICALL
+    Java_com_desktop_life_JniBridgeJava_nativePerformAiAction(JNIEnv *env, jclass type,
+                                                               jstring motionGroup,
+                                                               jint motionNo,
+                                                               jstring expressionId,
+                                                               jint priority)
+    {
+        const char* groupStr = motionGroup ? env->GetStringUTFChars(motionGroup, nullptr) : nullptr;
+        const char* exprStr = expressionId ? env->GetStringUTFChars(expressionId, nullptr) : nullptr;
+
+        LAppMinimumLive2DManager::GetInstance()->PerformAiAction(
+            groupStr ? groupStr : "",
+            motionNo,
+            exprStr ? exprStr : "",
+            priority
+        );
+
+        if (groupStr) env->ReleaseStringUTFChars(motionGroup, groupStr);
+        if (exprStr) env->ReleaseStringUTFChars(expressionId, exprStr);
+    }
+
+    JNIEXPORT void JNICALL
+    Java_com_desktop_life_JniBridgeJava_nativeStartMotion(JNIEnv *env, jclass type,
+                                                           jstring motionGroup,
+                                                           jint motionNo,
+                                                           jint priority)
+    {
+        const char* groupStr = motionGroup ? env->GetStringUTFChars(motionGroup, nullptr) : nullptr;
+        if (groupStr)
+        {
+            LAppMinimumLive2DManager::GetInstance()->GetModel()->StartMotion(groupStr, motionNo, priority);
+            env->ReleaseStringUTFChars(motionGroup, groupStr);
+        }
+    }
+
+    JNIEXPORT void JNICALL
+    Java_com_desktop_life_JniBridgeJava_nativeSetExpression(JNIEnv *env, jclass type,
+                                                             jstring expressionId)
+    {
+        const char* exprStr = expressionId ? env->GetStringUTFChars(expressionId, nullptr) : nullptr;
+        if (exprStr)
+        {
+            LAppMinimumLive2DManager::GetInstance()->GetModel()->SetExpression(exprStr);
+            env->ReleaseStringUTFChars(expressionId, exprStr);
+        }
+    }
+
     JNIEXPORT void JNICALL
     Java_com_desktop_life_JniBridgeJava_nativeOnStart(JNIEnv *env, jclass type)
     {

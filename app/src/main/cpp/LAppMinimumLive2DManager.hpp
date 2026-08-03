@@ -67,6 +67,18 @@ public:
     void OnDrag(Csm::csmFloat32 x, Csm::csmFloat32 y) const;
 
     /**
+    * @brief   AIによるモーションと表情の制御
+    *          指定されたモーショングループ・番号・表情を再生する
+    *
+    * @param[in]   motionGroup   モーショングループ名 ("Idle","Tap","TapHead","TapBody","Special")
+    * @param[in]   motionNo      グループ内のモーション番号
+    * @param[in]   expressionId  表情ID ("angry","cry","baozhen","qizi1","qizi2","white_eyes", 空文字の場合は表情変更なし)
+    * @param[in]   priority      モーション優先度
+    */
+    void PerformAiAction(const Csm::csmChar* motionGroup, Csm::csmInt32 motionNo,
+                         const Csm::csmChar* expressionId, Csm::csmInt32 priority);
+
+    /**
     * @brief   画面を更新するときの処理
     *          モデルの更新処理および描画処理を行う
     */

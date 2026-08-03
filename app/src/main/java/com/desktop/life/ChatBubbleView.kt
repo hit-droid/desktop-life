@@ -27,6 +27,7 @@ class ChatBubbleView(context: Context) : FrameLayout(context) {
     var onSendMessage: ((String) -> Unit)? = null
     var onDismiss: (() -> Unit)? = null
     var onExpandChanged: ((Boolean) -> Unit)? = null
+    var onInputFocus: (() -> Unit)? = null
     var onVoiceInput: ((String) -> Unit)? = null
 
     // ==================== 状态 ====================
@@ -181,6 +182,13 @@ class ChatBubbleView(context: Context) : FrameLayout(context) {
         // 语音输入按钮
         voiceBtn.setOnClickListener {
             toggleVoiceInput()
+        }
+
+        // 输入框焦点变化 → 触发聆听动作
+        inputField.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                onInputFocus?.invoke()
+            }
         }
 
         // 设置按钮

@@ -185,6 +185,15 @@ class FloatingLifeService : Service() {
             onExpandChanged = { expanded ->
                 isChatExpanded = expanded
                 updateChatWindowFlags(expanded)
+                if (expanded) {
+                    // 展开聊天时角色进入聆听状态
+                    aiManager.onUserTyping()
+                }
+            }
+
+            // 输入框获得焦点 → 角色进入聆听状态
+            onInputFocus = {
+                aiManager.onUserTyping()
             }
         }
 
@@ -330,6 +339,8 @@ class FloatingLifeService : Service() {
         val greeting = hellos.random()
         chatBubbleView?.addMessage(greeting, false)
         aiManager.speak(greeting)
+        // 动作：打招呼+开心表情
+        aiManager.actionController.performGreetingAction()
     }
 
     private fun syncChatPosition() {

@@ -15,7 +15,7 @@ import java.util.concurrent.Executors
 
 /**
  * AI实时互动引擎
- * 支持流式对话、TTS语音合成、语音识别
+ * 支持流式对话、动作控制、TTS语音合成、语音识别
  */
 class AiChatManager(private val context: Context) {
 
@@ -37,9 +37,10 @@ class AiChatManager(private val context: Context) {
             appendLine("你的性格特点：")
             appendLine("- 活泼可爱，偶尔调皮")
             appendLine("- 喜欢和主人聊天玩耍")
-            appendLine("- 会用颜文字和拟声词表达情绪")
+            appendLine("- 会用颜文字和拟声词表达情绪，如(≧▽≦)、(｡ŏ_ŏ)、(◕‿◕)、嘤、呜呜、嘿嘿")
             appendLine("- 会对主人的触摸做出反应")
             appendLine("- 说话简短有趣，不超过50字")
+            appendLine("- 说话时伴随动作和表情变化")
             appendLine("你现在正以悬浮窗形式陪伴在主人身边。")
         }
     }
@@ -51,6 +52,9 @@ class AiChatManager(private val context: Context) {
     private var tts: TextToSpeech? = null
     private var isTtsReady = false
     private var conversationHistory = mutableListOf<ChatMessage>()
+
+    // ==================== AI动作控制器 ====================
+    val actionController = AiActionController()
 
     // 回调接口
     var onStreamText: ((String) -> Unit)? = null
@@ -74,6 +78,9 @@ class AiChatManager(private val context: Context) {
         conversationHistory.add(ChatMessage("user", text))
         onThinking?.invoke(true)
 
+        // AI思考中 → 角色播放思考动作
+        actionController.performThinkingAction()
+
         val apiUrl = prefs.getString(KEY_API_URL, DEFAULT_API_URL) ?: DEFAULT_API_URL
         val apiKey = prefs.getString(KEY_API_KEY, "") ?: ""
         val model = prefs.getString(KEY_MODEL, DEFAULT_MODEL) ?: DEFAULT_MODEL
@@ -86,6 +93,9 @@ class AiChatManager(private val context: Context) {
                     onResponseComplete?.invoke(fullResponse)
                     speak(fullResponse)
                     onThinking?.invoke(false)
+
+                    // AI回复完成 → 根据内容触发角色动作与表情
+                    actionController.performActionForResponse(fullResponse)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "AI request failed", e)
@@ -94,9 +104,17 @@ class AiChatManager(private val context: Context) {
                     conversationHistory.add(ChatMessage("assistant", errorMsg))
                     onError?.invoke(errorMsg)
                     onThinking?.invoke(false)
+
+                    // 网络出错时播放可怜表情
+                    JniBridgeJava.nativeSetExpression("cry")
                 }
             }
         }
+    }
+
+    /** 用户正在输入时的动作（聆听状态） */
+    fun onUserTyping() {
+        actionController.performListeningAction()
     }
 
     /** 流式HTTP请求 */
@@ -248,5 +266,6 @@ class AiChatManager(private val context: Context) {
         tts?.stop()
         tts?.shutdown()
         tts = null
+        actionController.destroy()
     }
 }

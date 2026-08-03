@@ -18,6 +18,14 @@ public class JniBridgeJava {
     public static native void nativeOnTouchesEnded(float pointX, float pointY);
     public static native void nativeOnTouchesMoved(float pointX, float pointY);
 
+    // ==================== AI动作控制 ====================
+    /** 执行AI动作（动作+表情组合） */
+    public static native void nativePerformAiAction(String motionGroup, int motionNo, String expressionId, int priority);
+    /** 播放指定动作 */
+    public static native void nativeStartMotion(String motionGroup, int motionNo, int priority);
+    /** 设置表情 */
+    public static native void nativeSetExpression(String expressionId);
+
     public static void SetContext(Context context) {
         JniBridgeJava.context = context;
     }

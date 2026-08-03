@@ -83,6 +83,25 @@ void LAppMinimumLive2DManager::OnDrag(csmFloat32 x, csmFloat32 y) const
     model->SetDragging(x, y);
 }
 
+void LAppMinimumLive2DManager::PerformAiAction(const csmChar* motionGroup, csmInt32 motionNo,
+                                                const csmChar* expressionId, csmInt32 priority)
+{
+    LAppMinimumModel* model = GetModel();
+    if (!model) return;
+
+    // 设置表情（如果指定了非空表情ID）
+    if (expressionId && strlen(expressionId) > 0)
+    {
+        model->SetExpression(expressionId);
+    }
+
+    // 播放指定动作（Force优先级确保打断当前动作）
+    if (motionGroup && strlen(motionGroup) > 0)
+    {
+        model->StartMotion(motionGroup, motionNo, priority);
+    }
+}
+
 void LAppMinimumLive2DManager::OnUpdate() const
 {
     int width = LAppMinimumDelegate::GetInstance()->GetWindowWidth();
