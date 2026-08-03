@@ -27,6 +27,8 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // 使用 debug keystore 签名，让 APK 可直接安装
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 

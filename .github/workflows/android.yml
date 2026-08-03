@@ -3,6 +3,7 @@ name: Build Desktop Life APK
 on:
   push:
     branches: [ "main" ]
+    tags: [ "v*" ]
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
@@ -23,21 +24,49 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Download Cubism SDK
-        run: |
-          mkdir -p /tmp/cubism_sdk
-          echo "Cubism SDK would need to be downloaded here"
-          echo "For now, the native libs are already in the project tree"
-
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
       - name: Build with Gradle
         run: ./gradlew assembleRelease
 
-      - name: Upload APK
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: desktop-life-apk
           path: app/build/outputs/apk/release/app-release.apk
           retention-days: 30
+
+      - name: Extract version from tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        id: get_version
+        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: 桌面生命 v${{ steps.get_version.outputs.version }}
+          body: |
+            ## 桌面生命 Desktop Life v${{ steps.get_version.outputs.version }}
+
+            ✨ 桌面二次元Live2D陪伴应用
+
+            ### 新特性
+            - AI实时对话互动（流式输出）
+            - AI控制角色动作与表情
+            - 语音输入（TTS语音合成）
+            - 原生悬浮窗显示
+            - 双击打开/关闭聊天
+            - 三击打招呼
+
+            ### 安装说明
+            下载 APK 安装包到 Android 设备直接安装即可。
+            - 最低支持: Android 8.0 (API 26)
+            - 目标: Android 14 (API 34)
+            - 架构: arm64-v8a
+          files: |
+            app/build/outputs/apk/release/app-release.apk
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

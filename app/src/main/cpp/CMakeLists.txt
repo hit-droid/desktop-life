@@ -4,13 +4,11 @@ cmake_minimum_required(VERSION 3.10)
 set(APP_NAME Live2DEngine)
 
 # ============================================================
-# SDK Paths (absolute paths to the Cubism SDK)
+# SDK Paths (relative to this CMakeLists.txt)
+# Cubism SDK Core, Framework, and Common are bundled in-tree
 # ============================================================
-set(CUBISM_SDK_ROOT /tmp/cubism_sdk/CubismSdkForNative-5-r.5)
-set(CORE_PATH ${CUBISM_SDK_ROOT}/Core)
-set(FRAMEWORK_PATH ${CUBISM_SDK_ROOT}/Framework)
-set(SAMPLES_COMMON_PATH ${CUBISM_SDK_ROOT}/Samples/Common)
-set(STB_PATH ${CUBISM_SDK_ROOT}/Samples/OpenGL/thirdParty/stb)
+set(CORE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/core)
+set(STB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/stb)
 
 # ============================================================
 # C++ Standard
