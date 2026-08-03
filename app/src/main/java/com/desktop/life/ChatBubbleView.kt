@@ -2,8 +2,11 @@ package com.desktop.life
 
 import android.animation.ValueAnimator
 import android.content.Context
+import android.content.Intent
 import android.graphics.*
+import android.graphics.drawable.ColorDrawable
 import android.os.Build
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.speech.RecognitionListener
@@ -104,7 +107,7 @@ class ChatBubbleView(context: Context) : FrameLayout(context) {
         layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
         setPadding(dp(8), dp(4), dp(8), dp(4))
         addView(voiceBtn)
-        addView(inputField, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f))
+        addView(inputField, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
         addView(sendBtn)
     }
 
@@ -134,7 +137,7 @@ class ChatBubbleView(context: Context) : FrameLayout(context) {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
             layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, dp(32))
-            addView(titleBar, LayoutParams(0, LayoutParams.MATCH_PARENT, 1f))
+            addView(titleBar, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f))
             addView(aiSettingBtn)
         }
 
@@ -149,7 +152,7 @@ class ChatBubbleView(context: Context) : FrameLayout(context) {
             orientation = LinearLayout.VERTICAL
             layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
             addView(titleRow)
-            addView(scrollView, LayoutParams(LayoutParams.MATCH_PARENT, 0, 1f))
+            addView(scrollView, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
             addView(thinkingDots)
             addView(divider)
             addView(inputRow)
@@ -252,7 +255,7 @@ class ChatBubbleView(context: Context) : FrameLayout(context) {
             this.text = text
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
             setTextColor(Color.WHITE)
-            lineSpacing = 4f, 1.0f
+            setLineSpacing(4f, 1.0f)
             setPadding(dp(12), dp(8), dp(12), dp(8))
             setBackgroundDrawable(createBubbleBg(bgColor, isUser))
             layoutParams = LayoutParams(
@@ -384,6 +387,7 @@ class ChatBubbleView(context: Context) : FrameLayout(context) {
                 }
 
                 override fun onBeginningOfSpeech() {}
+                override fun onEndOfSpeech() {}
                 override fun onRmsChanged(rmsdB: Float) {}
                 override fun onBufferReceived(buffer: ByteArray?) {}
 
@@ -453,10 +457,6 @@ class ChatBubbleView(context: Context) : FrameLayout(context) {
     private lateinit var ttsSwitch: Switch
 
     private fun createSettingsView(): View {
-        val mgr = (context as? Service)?.let {
-            AiChatManager::class.java.getDeclaredField("context").apply { isAccessible = true }
-        }
-
         val padding = dp(16)
 
         etApiUrl = EditText(context).apply {
